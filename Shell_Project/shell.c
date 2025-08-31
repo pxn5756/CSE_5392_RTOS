@@ -135,24 +135,23 @@ void getsUart0(char *str_Buffer)
     {
         kbkit();
         c = getcUart0();
-        // displayUart0(&c);
-        if (c == DEL || c == BCKSPACE && count > 0)
+        if (((c == DEL) || (c == BCKSPACE)) && (count > 0))
         {
             count--;
-        //    displayUart0(" ");
+            displayUart0(&c);
             continue;
         }
-        else if (c == DEL || c == BCKSPACE && count == 0)
+        else if (((c == DEL) || (c == BCKSPACE)) && (count == 0))
         {
             continue;
         }
         else
         {
+            displayUart0(&c);
             if (c == '\r')
             {
                 str_Buffer[count] = '\0';
-                // displayUart0(&c);
-                //displayUart0("\n");
+                displayUart0("\r\n");
                 break;
             }
             else if (c >= ' ')
@@ -161,7 +160,7 @@ void getsUart0(char *str_Buffer)
                 if (count == MAX_CHARS)
                 {
                     str_Buffer[count] = '\0';
-                    //displayUart0("\r\n");
+                    displayUart0("\r\n");
                     break;
                 }
             }
