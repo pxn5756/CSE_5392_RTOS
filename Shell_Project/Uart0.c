@@ -27,9 +27,13 @@
 #define UART_TX_MASK 2
 #define UART_RX_MASK 1
 
+#define BUFF_SIZE 80
+
 //-----------------------------------------------------------------------------
 // Global variables
 //-----------------------------------------------------------------------------
+uint8_t wr_index = 0, rd_index = 0;
+char bufferTX[BUFF_SIZE];
 
 //-----------------------------------------------------------------------------
 // Subroutines
@@ -68,8 +72,10 @@ void setUart0BaudRate(uint32_t baudRate, uint32_t fcyc)
 {
     uint32_t divisorTimes128 = (fcyc * 8) / baudRate;   // calculate divisor (r) in units of 1/128,
                                                         // where r = fcyc / 16 * baudRate
+    UART0_CTL_R = 0;                                    // turn-off UART0 to allow safe programming
     UART0_IBRD_R = (divisorTimes128 + 1) >> 7;          // set integer value to floor(r)
     UART0_FBRD_R = (((divisorTimes128 + 1)) >> 1) & 63; // set fractional value to round(fract(r)*64)
+    UART0_CTL_R = UART_CTL_TXE | UART_CTL_RXE | UART_CTL_UARTEN; // Turns on Uart0
 }
 
 // Blocking function that writes a serial character when the UART buffer is not full
@@ -99,3 +105,47 @@ bool kbhitUart0()
 {
     return !(UART0_FR_R & UART_FR_RXFE);
 }
+
+// Enables Uart 0 Transmit Interrupts
+void setUart0ISR(void)
+{
+    UART0_CTL_R = 0;
+    UART0_IM_R = UART_IM_TXIM; //Enable TX interrupt
+    NVIC_EN0_R |= 1 << (INT_UART0 - 16); //Enable interrupt 5 (UART0)
+    UART0_CTL_R = UART_CTL_EOT | UART_CTL_TXE | UART_CTL_RXE | UART_CTL_UARTEN; //Enable UART and EOT bit to trigger UARTISR upon TX FIFO empty
+}
+
+// Interrupt Service Routine for UART Transmit
+void UART0ISR()
+{
+    bool bufferEmpty;
+    bufferEmpty = (wr_index == rd_index);
+    if (!bufferEmpty)
+    {
+        UART0_DR_R = bufferTX[rd_index];
+        rd_index = (rd_index + 1) % BUFF_SIZE;
+    }
+    UART0_ICR_R = UART_ICR_TXIC; // Clear TX interrupt flag
+}
+
+// Non-blocking function (Interrupt based) that transmits string data to console
+void displayUart0(const char str[])
+{
+    int i;
+    bool bufferFull;
+    bufferFull = (wr_index + 1) % BUFF_SIZE == rd_index;
+    for (i = 0; str[i] != '\0'; i++)
+    {
+        if (!bufferFull) //If buffer is not full
+        {
+            bufferTX[wr_index] = str[i]; //Copy str to buffer
+            wr_index = (wr_index + 1) % BUFF_SIZE;
+        }
+    }
+    if (UART0_FR_R & UART_FR_TXFE) //If Uart0 TX FIFO empty
+    {
+        UART0_DR_R = bufferTX[rd_index]; //Send first char directly to FIFO
+        rd_index = (rd_index + 1) % BUFF_SIZE;
+    }
+}
+

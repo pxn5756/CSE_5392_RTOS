@@ -12,11 +12,21 @@
 #include <stdbool.h>
 #include "my_stringlib.h"
 
-// Defines used for argument type
-#define ALPHA 'a'
-#define NUMBER 'n'
-#define DELIM 'd'
-
+// Reverse a string
+void reverse_str(char *str, const int length)
+{
+    int start = 0;
+    int end = length - 1;
+    char temp;
+    while(start < end)
+    {
+        temp = str[start];
+        str[start] = str[end];
+        str[end] = temp;
+        end--;
+        start++;
+    }
+}
 // Convert character to integer
 int32_t my_atoi(const char *str)
 {
@@ -39,8 +49,46 @@ int32_t my_atoi(const char *str)
     return sign * result;
 }
 
-// Convert integer to character
+// Convert integer (base 10) to character
+char *my_itoa(int num, char* str)
+{
+    uint16_t indx = 0;
+    uint16_t rem = 0;
+    bool negative = false;
 
+    // Handle 0 case
+    if(num == 0)
+    {
+        str[indx++] = '0';
+        str[indx] = '\0';
+        return str;
+    }
+
+    if (num < 0)
+    {
+        // Make positive for conversion
+        negative = true;
+        num = -num;
+    }
+
+    while(num != 0 )
+    {
+        // Obtain remainder
+        rem = num - (num/10)*10;
+        str[indx++] = rem + '0';
+        num = num/10;
+    }
+
+    if(negative)
+    {
+        str[indx++] = '-';
+    }
+
+    str[indx] = '\0';
+
+    reverse_str(str, indx);
+    return(str);
+}
 
 // Compare two strings
 bool my_strcmp(char *input, const char str[])
@@ -60,94 +108,4 @@ bool my_strcmp(char *input, const char str[])
     return true;
 }
 
-void parse(USER_DATA *data)
-{
-    uint8_t arg_count = 0;
-    uint8_t i;
-    char prev_type = DELIM;
-    char c;
-    for (i = 0; data->buffer[i] != '\0'; i++)
-    {
-        c = data->buffer[i];
-        if (c >= '0' && c <= '9' && prev_type != NUMBER)
-        {
-            data->Type[arg_count] = NUMBER;
-            prev_type = data->Type[arg_count];
-            data->Index[arg_count++] = i;
-        }
-        else if (((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-                && prev_type != ALPHA)
-        {
-            data->Type[arg_count] = ALPHA;
-            prev_type = data->Type[arg_count];
-            data->Index[arg_count++] = i;
-        }
-        else if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
-                || (c >= '0' && c <= '9') || c == '-'))
-        {
-            prev_type = DELIM;
-            data->buffer[i] = '\0';
-        }
-        if (arg_count > MAX_ARGS)
-        {
-            arg_count = 0;
-            break;
-        }
-    }
-    data->argCount = arg_count;
-#ifdef DEBUG
-    for (i = 0; i < data->argCount; i++)
-    {
-        putcUart0(data->Type[i]);
-        putcUart0(',');
-        putsUart0(&data->buffer[data->Index[i]]);
-        putcUart0('\n');
 
-    }
-#endif
-}
-
-char* getFieldString(USER_DATA *data, uint8_t fieldNumber)
-{
-    if (fieldNumber < data->argCount)
-    {
-        return &(data->buffer[data->Index[fieldNumber]]);
-    }
-    else
-    {
-        return '\0';
-    }
-}
-
-uint32_t getFieldValue(USER_DATA *data, uint8_t fieldNumber)
-{
-    if (fieldNumber < data->argCount && data->Type[fieldNumber] == NUMBER)
-    {
-        return my_atoi(&data->buffer[data->Index[fieldNumber]]);
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments)
-{
-    int i;
-    char *command = &data->buffer[data->Index[0]];
-    if (minArguments == data->argCount - 1)
-    {
-        for (i = 1; i < data->argCount; i++)
-        {
-            if (data->Type[i] != NUMBER) //Check if other args are numerical
-            {
-                return false;
-            }
-        }
-    }
-    else
-    {
-        return false;
-    }
-    return my_strcmp(command, strCommand);
-}

@@ -21,6 +21,9 @@
 #ifndef UART0_H_
 #define UART0_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+
 //-----------------------------------------------------------------------------
 // Subroutines
 //-----------------------------------------------------------------------------
@@ -33,6 +36,7 @@ char getcUart0();
 bool kbhitUart0();
 
 // Added functions - Peter Nguyen
-
+void setUart0ISR(void);
+void displayUart0(const char str[]);
 
 #endif

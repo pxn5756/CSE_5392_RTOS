@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Shell_Project",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Shell_Project",
+                "resourceId": "/Shell_Project"
+            }
+        }
+    ]
+}

@@ -56,11 +56,8 @@ extern uint32_t __STACK_TOP;
 //*****************************************************************************
 // To be added by user
 
-extern void UART0ISR(void); //
-extern void UART1ISR(void);
-extern void Timer0ISR(void);
-extern void Timer1ISR(void);
-extern void Timer2ISR(void);
+extern void UART0ISR(void);
+
 
 
 //*****************************************************************************
@@ -96,7 +93,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // GPIO Port D
     IntDefaultHandler,                      // GPIO Port E
     UART0ISR,                      // UART0 Rx and Tx
-    UART1ISR,                      // UART1 Rx and Tx
+    IntDefaultHandler,                      // UART1 Rx and Tx
     IntDefaultHandler,                      // SSI0 Rx and Tx
     IntDefaultHandler,                      // I2C0 Master and Slave
     IntDefaultHandler,                      // PWM Fault
@@ -109,11 +106,11 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // ADC Sequence 2
     IntDefaultHandler,                      // ADC Sequence 3
     IntDefaultHandler,                      // Watchdog timer
-    Timer0ISR,                      // Timer 0 subtimer A (modified for 32-bit)
+    IntDefaultHandler,                      // Timer 0 subtimer A (modified for 32-bit)
     IntDefaultHandler,                      // Timer 0 subtimer B
-    Timer1ISR,                      // Timer 1 subtimer A
+    IntDefaultHandler,                      // Timer 1 subtimer A
     IntDefaultHandler,                      // Timer 1 subtimer B
-    Timer2ISR,                      // Timer 2 subtimer A
+    IntDefaultHandler,                      // Timer 2 subtimer A
     IntDefaultHandler,                      // Timer 2 subtimer B
     IntDefaultHandler,                      // Analog Comparator 0
     IntDefaultHandler,                      // Analog Comparator 1
