@@ -19,7 +19,6 @@
 
 //Bitband Alias
 #define RED_LED (*((volatile uint32_t *)(0x42000000 + (0x400253FC-0x40000000)*32 + 1*4)))
-#define BLUE_LED (*((volatile uint32_t *)(0x42000000 + (0x400253FC-0x40000000)*32 + 2*4)))
 #define GREEN_LED (*((volatile uint32_t *)(0x42000000 + (0x400253FC-0x40000000)*32 + 3*4)))
 
 
@@ -64,9 +63,9 @@ void main(void)
     initHw();
     initUart0();
     setUart0ISR();
-    putsUart0("\r\n\n======================================================\r\n");
-    putsUart0("---------------- CSE 5392 Shell Nano Project --------------\r\n");
-    putsUart0("======================================================\r\n");
+    // putsUart0("\r\n\n======================================================\r\n");
+    // putsUart0("---------------- CSE 5392 Shell Nano Project --------------\r\n");
+    // putsUart0("======================================================\r\n");
     blinkLED(); // Visual Indicator on board for program start
 
     shell();

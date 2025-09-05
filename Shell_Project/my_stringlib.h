@@ -14,7 +14,6 @@
 int32_t my_atoi(const char *str);
 char *my_itoa(const int num, char *str);
 void reverse_str(char *str, const int length);
-//char itoa(uint32_t value);
 bool my_strcmp(char *input, const char str[]);
 
 

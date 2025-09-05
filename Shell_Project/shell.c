@@ -117,15 +117,6 @@ void yield()
 
 }
 
-void kbkit(void)
-{
-    // Wait while RX Buffer is Empty
-    while (UART0_FR_R & UART_FR_RXFE)
-    {
-        yield();
-    }
-}
-
 // Blocking function that obtains string data from console on return
 void getsUart0(char *str_Buffer)
 {
@@ -133,38 +124,41 @@ void getsUart0(char *str_Buffer)
     char c;
     while (1)
     {
-        kbkit();
-        c = getcUart0();
-        if (((c == DEL) || (c == BCKSPACE)) && (count > 0))
+        if(kbhitUart0())
         {
-            count--;
-            displayUart0(&c);
-            continue;
-        }
-        else if (((c == DEL) || (c == BCKSPACE)) && (count == 0))
-        {
-            continue;
-        }
-        else
-        {
-            displayUart0(&c);
-            if (c == '\r')
+            c = getcUart0();
+            if (((c == DEL) || (c == BCKSPACE)) && (count > 0))
             {
-                str_Buffer[count] = '\0';
-                displayUart0("\r\n");
-                break;
+                count--;
+                displayUart0(&c);
+                continue;
             }
-            else if (c >= ' ')
+            else if (((c == DEL) || (c == BCKSPACE)) && (count == 0))
             {
-                str_Buffer[count++] = c;
-                if (count == MAX_CHARS)
+                continue;
+            }
+            else
+            {
+                displayUart0(&c);
+                if (c == '\r')
                 {
                     str_Buffer[count] = '\0';
                     displayUart0("\r\n");
                     break;
                 }
+                else if (c >= ' ')
+                {
+                    str_Buffer[count++] = c;
+                    if (count == MAX_CHARS)
+                    {
+                        str_Buffer[count] = '\0';
+                        displayUart0("\r\n");
+                        break;
+                    }
+                }
             }
         }
+        yield();
     }
 }
 

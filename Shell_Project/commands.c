@@ -6,7 +6,6 @@
  * shell program
 */
 
-
 #include "Uart0.h"
 #include "shell.h"
 #include "my_stringlib.h"
@@ -16,7 +15,7 @@
 int RunCommand(USER_DATA *data)
 {   
     int error = 0;
-
+    // There is probably a better way to do this. 
     if(isCommand(data, "reboot", 0))
     {
         reboot();

@@ -49,7 +49,6 @@ bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments);
 int RunCommand(USER_DATA *data);
 
 void getsUart0(char *str_Buffer);
-void kbkit(void);
 void yield();
 void shell(void);
 
